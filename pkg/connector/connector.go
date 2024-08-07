@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ConductorOne/BambooHR/pkg/connector/client"
+	"github.com/conductorone/baton-bamboohr/pkg/connector/client"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
 
