@@ -24,35 +24,6 @@ const (
 	APIVersion       = "v1"
 )
 
-type User struct {
-	Id              string `json:"id"`
-	FirstName       string `json:"firstName"`
-	LastName        string `json:"lastName"`
-	Supervisor      string `json:"supervisor"`
-	SupervisorEId   string `json:"supervisorEId"`
-	SupervisorId    string `json:"supervisorId"`
-	SupervisorEmail string `json:"supervisorEmail"`
-	Email           string `json:"workEmail"`
-	Status          string `json:"status"`
-}
-
-type Fields struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-}
-
-type ReqFields struct {
-	Title  string   `json:"title"`
-	Fields []string `json:"fields"`
-}
-
-type ReportUserResults struct {
-	Title  string   `json:"title"`
-	Fields []Fields `json:"fields"`
-	Users  []*User  `json:"employees"`
-}
-
 type BambooHRClient struct {
 	Client        *http.Client
 	ApiKey        string
@@ -115,7 +86,20 @@ func (t *openHttpTransport) RoundTrip(request *http.Request) (*http.Response, er
 }
 
 func (c *BambooHRClient) newUnPaginatedURL(path string, v url.Values) (string, error) {
-	reqUrl := url.URL{Scheme: "https", Host: APIDomain, Path: strings.Join([]string{APIPath, APIGateway, c.CompanyDomain, APIVersion, path}, "/")}
+	reqUrl := url.URL{
+		Scheme: "https",
+		Host:   APIDomain,
+		Path: strings.Join(
+			[]string{
+				APIPath,
+				APIGateway,
+				c.CompanyDomain,
+				APIVersion,
+				path,
+			},
+			"/",
+		),
+	}
 	reqUrl.RawQuery = v.Encode()
 	return reqUrl.String(), nil
 }
@@ -130,8 +114,17 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (*UsersResponse, error) 
 	}
 
 	listUsersReqBody := ReqFields{
-		Title:  "ConductorOne Employees List Report",
-		Fields: []string{"firstName", "lastName", "supervisor", "supervisorEId", "supervisorId", "supervisorEmail", "workEmail", "status"},
+		Title: "ConductorOne Employees List Report",
+		Fields: []string{
+			"firstName",
+			"lastName",
+			"supervisor",
+			"supervisorEId",
+			"supervisorId",
+			"supervisorEmail",
+			"workEmail",
+			"status",
+		},
 	}
 	body, err := json.Marshal(listUsersReqBody)
 	if err != nil {
@@ -148,7 +141,13 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (*UsersResponse, error) 
 	return rv, nil
 }
 
-func (c *BambooHRClient) query(ctx context.Context, method string, requestURL string, res interface{}, body []byte) error {
+func (c *BambooHRClient) query(
+	ctx context.Context,
+	method string,
+	requestURL string,
+	res interface{},
+	body []byte,
+) error {
 	var bodyReader *bytes.Buffer
 	reqUrl, err := url.Parse(requestURL)
 	if err != nil {
@@ -183,7 +182,7 @@ func (c *BambooHRClient) query(ctx context.Context, method string, requestURL st
 	return nil
 }
 
-// Makes an API call to verify that the given credentials work.
+// Verify - Makes an API call to verify that the given credentials work.
 func (c *BambooHRClient) Verify(ctx context.Context) error {
 	_, err := c.ListUsers(ctx)
 	if err != nil {

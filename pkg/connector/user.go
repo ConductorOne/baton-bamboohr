@@ -8,7 +8,7 @@ import (
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/pagination"
-	"github.com/conductorone/baton-sdk/pkg/sdk"
+	"github.com/conductorone/baton-sdk/pkg/types/resource"
 )
 
 type UserResourceType struct {
@@ -20,7 +20,11 @@ func (o *UserResourceType) ResourceType(_ context.Context) *v2.ResourceType {
 	return o.resourceType
 }
 
-func (o *UserResourceType) List(ctx context.Context, _ *v2.ResourceId, pt *pagination.Token) ([]*v2.Resource, string, annotations.Annotations, error) {
+func (o *UserResourceType) List(
+	ctx context.Context,
+	_ *v2.ResourceId,
+	pt *pagination.Token,
+) ([]*v2.Resource, string, annotations.Annotations, error) {
 	usersResponse, err := o.bambooHRClient.ListUsers(ctx)
 	if err != nil {
 		return nil, "", nil, err
@@ -28,15 +32,11 @@ func (o *UserResourceType) List(ctx context.Context, _ *v2.ResourceId, pt *pagin
 
 	rv := make([]*v2.Resource, 0, len(usersResponse.Users))
 	for _, user := range usersResponse.Users {
-		annos := &v2.V1Identifier{
-			Id: user.Id,
-		}
-		profile := userProfile(ctx, user)
-		userResource, err := sdk.NewUserResource(fmt.Sprintf("%s %s", user.FirstName, user.LastName), resourceTypeUser, nil, user.Id, user.Email, profile, annos)
+		newResource, err := userResource(ctx, user)
 		if err != nil {
 			return nil, "", nil, err
 		}
-		rv = append(rv, userResource)
+		rv = append(rv, newResource)
 	}
 
 	return rv, "", nil, nil
@@ -55,6 +55,30 @@ func userBuilder(bambooHRClient *client.BambooHRClient) *UserResourceType {
 		resourceType:   resourceTypeUser,
 		bambooHRClient: bambooHRClient,
 	}
+}
+
+// userResource convert a BambooHR into a Resource.
+func userResource(
+	ctx context.Context,
+	user *client.User,
+) (*v2.Resource, error) {
+	profile := userProfile(ctx, user)
+	displayName := fmt.Sprintf(
+		"%s %s",
+		user.FirstName,
+		user.LastName,
+	)
+	userTraitOptions := []resource.UserTraitOption{
+		resource.WithUserProfile(profile),
+		resource.WithEmail(user.Email, true),
+	}
+
+	return resource.NewUserResource(
+		displayName,
+		resourceTypeUser,
+		user.Id,
+		userTraitOptions,
+	)
 }
 
 func userProfile(ctx context.Context, user *client.User) map[string]interface{} {

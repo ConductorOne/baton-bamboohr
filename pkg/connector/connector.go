@@ -12,36 +12,24 @@ import (
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 )
 
-var (
-	resourceTypeUser = &v2.ResourceType{
-		Id:          "user",
-		DisplayName: "User",
-		Traits: []v2.ResourceType_Trait{
-			v2.ResourceType_TRAIT_USER,
-		},
-		Annotations: v1AnnotationsForResourceType("user"),
-	}
-)
-
-type Config struct {
-	CompanyDomain string
-	ApiKey        string
-}
-
 type BambooHr struct {
 	customerDomain string
 	client         *client.BambooHRClient
 	apiKey         string
 }
 
-func New(ctx context.Context, config Config) (*BambooHr, error) {
-	client, err := client.New(ctx, config.ApiKey, config.CompanyDomain)
+func New(
+	ctx context.Context,
+	customerDomain string,
+	apiKey string,
+) (*BambooHr, error) {
+	client, err := client.New(ctx, apiKey, customerDomain)
 	if err != nil {
 		return nil, err
 	}
 	rv := &BambooHr{
-		customerDomain: config.CompanyDomain,
-		apiKey:         config.ApiKey,
+		customerDomain: customerDomain,
+		apiKey:         apiKey,
 		client:         client,
 	}
 	return rv, nil
@@ -77,7 +65,7 @@ func (c *BambooHr) Asset(ctx context.Context, asset *v2.AssetRef) (string, io.Re
 }
 
 func (c *BambooHr) ResourceSyncers(ctx context.Context) []connectorbuilder.ResourceSyncer {
-	rs := []connectorbuilder.ResourceSyncer{}
-	rs = append(rs, userBuilder(c.client))
-	return rs
+	return []connectorbuilder.ResourceSyncer{
+		userBuilder(c.client),
+	}
 }
