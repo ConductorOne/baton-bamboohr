@@ -1,6 +1,6 @@
 module github.com/conductorone/baton-bamboohr
 
-go 1.22.5
+go 1.22
 
 require (
 	github.com/conductorone/baton-sdk v0.2.18
