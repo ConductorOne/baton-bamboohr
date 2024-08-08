@@ -53,7 +53,7 @@ func (c *BambooHr) Metadata(ctx context.Context) (*v2.ConnectorMetadata, error) 
 }
 
 func (c *BambooHr) Validate(ctx context.Context) (annotations.Annotations, error) {
-	_, err := c.client.ListUsers(ctx)
+	_, _, err := c.client.ListUsers(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate API keys: %w", err)
 	}
