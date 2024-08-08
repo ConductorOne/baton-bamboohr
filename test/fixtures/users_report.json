@@ -1,0 +1,61 @@
+{
+  "title": "ConductorOne Employees List Report",
+  "fields": [
+    {
+      "id": "id",
+      "type": "string",
+      "name": "id"
+    },
+    {
+      "id": "firstName",
+      "type": "string",
+      "name": "firstName"
+    },
+    {
+      "id": "lastName",
+      "type": "string",
+      "name": "lastName"
+    },
+    {
+      "id": "supervisor",
+      "type": "string",
+      "name": "supervisor"
+    },
+    {
+      "id": "supervisorEId",
+      "type": "string",
+      "name": "supervisorEId"
+    },
+    {
+      "id": "supervisorId",
+      "type": "string",
+      "name": "supervisorId"
+    },
+    {
+      "id": "supervisorEmail",
+      "type": "string",
+      "name": "supervisorEmail"
+    },
+    {
+      "id": "workEmail",
+      "type": "string",
+      "name": "workEmail"
+    },
+    {
+      "id": "status",
+      "type": "string",
+      "name": "status"
+    }
+  ],
+  "employees": [{
+    "id": "id",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "supervisor": "supervisor",
+    "supervisorEId": "supervisorEId",
+    "supervisorId": "supervisorId",
+    "supervisorEmail": "supervisorEmail",
+    "workEmail": "workEmail",
+    "status": "status"
+  }]
+}
