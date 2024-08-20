@@ -5,28 +5,12 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ConductorOne/BambooHR/pkg/connector/client"
+	"github.com/conductorone/baton-bamboohr/pkg/connector/client"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
 
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 )
-
-var (
-	resourceTypeUser = &v2.ResourceType{
-		Id:          "user",
-		DisplayName: "User",
-		Traits: []v2.ResourceType_Trait{
-			v2.ResourceType_TRAIT_USER,
-		},
-		Annotations: v1AnnotationsForResourceType("user"),
-	}
-)
-
-type Config struct {
-	CompanyDomain string
-	ApiKey        string
-}
 
 type BambooHr struct {
 	customerDomain string
@@ -34,14 +18,18 @@ type BambooHr struct {
 	apiKey         string
 }
 
-func New(ctx context.Context, config Config) (*BambooHr, error) {
-	client, err := client.New(ctx, config.ApiKey, config.CompanyDomain)
+func New(
+	ctx context.Context,
+	customerDomain string,
+	apiKey string,
+) (*BambooHr, error) {
+	client, err := client.New(ctx, apiKey, customerDomain)
 	if err != nil {
 		return nil, err
 	}
 	rv := &BambooHr{
-		customerDomain: config.CompanyDomain,
-		apiKey:         config.ApiKey,
+		customerDomain: customerDomain,
+		apiKey:         apiKey,
 		client:         client,
 	}
 	return rv, nil
@@ -65,7 +53,7 @@ func (c *BambooHr) Metadata(ctx context.Context) (*v2.ConnectorMetadata, error) 
 }
 
 func (c *BambooHr) Validate(ctx context.Context) (annotations.Annotations, error) {
-	_, err := c.client.ListUsers(ctx)
+	_, _, err := c.client.ListUsers(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate API keys: %w", err)
 	}
@@ -77,7 +65,7 @@ func (c *BambooHr) Asset(ctx context.Context, asset *v2.AssetRef) (string, io.Re
 }
 
 func (c *BambooHr) ResourceSyncers(ctx context.Context) []connectorbuilder.ResourceSyncer {
-	rs := []connectorbuilder.ResourceSyncer{}
-	rs = append(rs, userBuilder(c.client))
-	return rs
+	return []connectorbuilder.ResourceSyncer{
+		userBuilder(c.client),
+	}
 }
