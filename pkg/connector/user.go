@@ -34,7 +34,7 @@ func WithRateLimitAnnotations(
 func (o *UserResourceType) List(
 	ctx context.Context,
 	_ *v2.ResourceId,
-	pt *pagination.Token,
+	_ *pagination.Token,
 ) ([]*v2.Resource, string, annotations.Annotations, error) {
 	users, ratelimitData, err := o.bambooHRClient.ListUsers(ctx)
 	outputAnnotations := WithRateLimitAnnotations(ratelimitData)
@@ -44,10 +44,11 @@ func (o *UserResourceType) List(
 
 	rv := make([]*v2.Resource, 0)
 	for _, user := range users {
-		newResource, err := userResource(ctx, user)
+		newResource, err := userResource(user)
 		if err != nil {
 			return nil, "", nil, err
 		}
+
 		rv = append(rv, newResource)
 	}
 
@@ -88,16 +89,15 @@ func userBuilder(bambooHRClient *client.BambooHRClient) *UserResourceType {
 }
 
 // userResource convert a BambooHR into a Resource.
-func userResource(
-	ctx context.Context,
-	user *client.User,
-) (*v2.Resource, error) {
-	profile := userProfile(ctx, user)
+func userResource(user *client.User) (*v2.Resource, error) {
+	profile := userProfile(user)
+
 	displayName := fmt.Sprintf(
 		"%s %s",
 		user.FirstName,
 		user.LastName,
 	)
+
 	userTraitOptions := []resource.UserTraitOption{
 		resource.WithUserProfile(profile),
 		resource.WithEmail(user.Email, true),
@@ -111,13 +111,16 @@ func userResource(
 	)
 }
 
-func userProfile(ctx context.Context, user *client.User) map[string]interface{} {
-	profile := make(map[string]interface{})
-	profile["supervisorEId"] = user.SupervisorEId
-	profile["supervisorFullName"] = user.Supervisor
-	profile["supervisorId"] = user.SupervisorId
-	profile["supervisorEmail"] = user.SupervisorEmail
-	profile["user_id"] = user.Id
+func userProfile(user *client.User) map[string]interface{} {
+	profile := map[string]interface{}{
+		"supervisorEId":      user.SupervisorEId,
+		"supervisorFullName": user.Supervisor,
+		"supervisorId":       user.SupervisorId,
+		"supervisorEmail":    user.SupervisorEmail,
+		"user_id":            user.Id,
+		"division":           user.Division,
+		"department":         user.Department,
+	}
 
 	return profile
 }

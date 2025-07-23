@@ -76,6 +76,8 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 			"supervisorEmail",
 			"workEmail",
 			"status",
+			"department",
+			"division",
 		},
 	}
 	bodyBytes, err := json.Marshal(listUsersReqBody)

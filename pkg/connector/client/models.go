@@ -10,6 +10,8 @@ type User struct {
 	SupervisorEmail string `json:"supervisorEmail"`
 	Email           string `json:"workEmail"`
 	Status          string `json:"status"`
+	Division        string `json:"division"`
+	Department      string `json:"department"`
 }
 
 type Fields struct {
