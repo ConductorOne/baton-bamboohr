@@ -2,7 +2,6 @@ package connector
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/conductorone/baton-bamboohr/pkg/connector/client"
@@ -52,11 +51,7 @@ func (c *BambooHr) Metadata(ctx context.Context) (*v2.ConnectorMetadata, error) 
 	}, nil
 }
 
-func (c *BambooHr) Validate(ctx context.Context) (annotations.Annotations, error) {
-	_, _, err := c.client.ListUsers(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate API keys: %w", err)
-	}
+func (c *BambooHr) Validate(_ context.Context) (annotations.Annotations, error) {
 	return nil, nil
 }
 
