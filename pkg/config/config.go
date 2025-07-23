@@ -7,13 +7,16 @@ import (
 var (
 	CompanyDomainField = field.StringField(
 		"company-domain",
+		field.WithDisplayName("Company Domain"),
 		field.WithDescription("The company domain for your BambooHR account"),
 		field.WithRequired(true),
 	)
 	ApiKeyField = field.StringField(
 		"api-key",
+		field.WithDisplayName("API Key"),
 		field.WithDescription("The api key for your BambooHR account"),
 		field.WithRequired(true),
+		field.WithIsSecret(true),
 	)
 
 	ConfigurationFields = []field.SchemaField{
