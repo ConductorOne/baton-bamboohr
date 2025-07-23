@@ -2,8 +2,10 @@
   "fields": [
     {
       "name": "api-key",
+      "displayName": "API Key",
       "description": "The api key for your BambooHR account",
       "isRequired": true,
+      "isSecret": true,
       "stringField": {
         "rules": {
           "isRequired": true
@@ -12,6 +14,7 @@
     },
     {
       "name": "company-domain",
+      "displayName": "Company Domain",
       "description": "The company domain for your BambooHR account",
       "isRequired": true,
       "stringField": {
