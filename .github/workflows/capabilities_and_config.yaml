@@ -30,7 +30,7 @@ jobs:
       - name: Run and save capabilities output
         env:
           BATON_ACCESS_TOKEN: "${{ secrets.BATON_ACCESS_TOKEN }}"
-        run: ./connector --api-key "test" --company-domain "test" capabilities > baton_capabilities.json
+        run: ./connector --api-key "API_KEY" --company-domain "COMPANY_DOMAIN" capabilities > baton_capabilities.json
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
