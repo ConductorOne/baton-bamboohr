@@ -15,11 +15,10 @@ import (
 )
 
 const (
-	APIDomain                 = "api.bamboohr.com"
-	APIPath                   = "api"
-	APIGateway                = "gateway.php"
-	APIVersion                = "v1"
-	BambooPasswordPlaceholder = "x"
+	APIDomain  = "api.bamboohr.com"
+	APIPath    = "api"
+	APIGateway = "gateway.php"
+	APIVersion = "v1"
 )
 
 type RequestError struct {
@@ -67,7 +66,9 @@ func (c *BambooHRClient) makeRequest(
 		return nil, err
 	}
 
-	req.SetBasicAuth(c.ApiKey, BambooPasswordPlaceholder)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+	req.SetBasicAuth(c.ApiKey, "")
 
 	ratelimitData := v2.RateLimitDescription{}
 
