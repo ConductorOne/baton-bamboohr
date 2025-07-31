@@ -67,7 +67,8 @@ func (c *BambooHRClient) makeRequest(
 		return nil, err
 	}
 
-	req.SetBasicAuth(c.ApiKey, BambooPasswordPlaceholder)
+	req.Header.Add("Content-Type", "application/json")
+	req.SetBasicAuth(c.ApiKey, "")
 
 	ratelimitData := v2.RateLimitDescription{}
 
