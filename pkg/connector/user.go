@@ -90,6 +90,7 @@ func userBuilder(bambooHRClient *client.BambooHRClient) *UserResourceType {
 
 // userResource convert a BambooHR into a Resource.
 func userResource(user *client.User) (*v2.Resource, error) {
+	var userStatus v2.UserTrait_Status_Status
 	profile := userProfile(user)
 
 	displayName := fmt.Sprintf(
@@ -98,9 +99,19 @@ func userResource(user *client.User) (*v2.Resource, error) {
 		user.LastName,
 	)
 
+	switch user.Status {
+	case "Active":
+		userStatus = v2.UserTrait_Status_STATUS_ENABLED
+	case "Inactive":
+		userStatus = v2.UserTrait_Status_STATUS_DISABLED
+	default:
+		userStatus = v2.UserTrait_Status_STATUS_UNSPECIFIED
+	}
+
 	userTraitOptions := []resource.UserTraitOption{
 		resource.WithUserProfile(profile),
 		resource.WithEmail(user.Email, true),
+		resource.WithStatus(userStatus),
 	}
 
 	return resource.NewUserResource(
