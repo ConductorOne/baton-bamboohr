@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -57,17 +56,19 @@ func (c *BambooHRClient) newUnPaginatedURL(path string, v url.Values) *url.URL {
 func (c *BambooHRClient) makeRequest(
 	ctx context.Context,
 	url *url.URL,
-	target interface{},
+	target any,
 	method string,
 	requestBody io.Reader,
 ) (*v2.RateLimitDescription, error) {
-	req, err := http.NewRequestWithContext(ctx, method, url.String(), requestBody)
+	reqOpts := []uhttp.RequestOption{uhttp.WithAcceptJSONHeader()}
+	if requestBody != nil {
+		reqOpts = append(reqOpts, uhttp.WithJSONBody(requestBody))
+	}
+	req, err := c.wrapper.NewRequest(ctx, method, url, reqOpts...)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(c.ApiKey, "")
 
 	ratelimitData := v2.RateLimitDescription{}
