@@ -63,6 +63,7 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 	users := &ReportUserResults{}
 	v := url.Values{}
 	v.Set("format", "json")
+	v.Set("onlyCurrent", "false")
 	reqURL := c.newUnPaginatedURL(UsersListUrlPath, v)
 
 	listUsersReqBody := ReqFields{
