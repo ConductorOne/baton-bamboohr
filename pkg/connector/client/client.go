@@ -2,11 +2,9 @@ package client
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 	"github.com/conductorone/baton-sdk/pkg/uhttp"
@@ -81,18 +79,13 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 			"division",
 		},
 	}
-	bodyBytes, err := json.Marshal(listUsersReqBody)
-	if err != nil {
-		return nil, nil, err
-	}
-	body := strings.NewReader(string(bodyBytes))
 
 	ratelimitData, err := c.makeRequest(
 		ctx,
 		reqURL,
 		users,
 		http.MethodPost,
-		body,
+		listUsersReqBody,
 	)
 	if err != nil {
 		return nil, ratelimitData, fmt.Errorf("bambooHR-client: error listing users %w", err)
