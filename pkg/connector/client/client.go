@@ -77,6 +77,7 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 			"status",
 			"department",
 			"division",
+			"employmentHistoryStatus",
 		},
 	}
 
