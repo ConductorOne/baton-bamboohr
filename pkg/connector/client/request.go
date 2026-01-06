@@ -58,7 +58,7 @@ func (c *BambooHRClient) makeRequest(
 	url *url.URL,
 	target any,
 	method string,
-	requestBody io.Reader,
+	requestBody any,
 ) (*v2.RateLimitDescription, error) {
 	reqOpts := []uhttp.RequestOption{uhttp.WithAcceptJSONHeader()}
 	if requestBody != nil {

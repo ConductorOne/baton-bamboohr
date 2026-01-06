@@ -131,6 +131,8 @@ func userProfile(user *client.User) map[string]interface{} {
 		"user_id":            user.Id,
 		"division":           user.Division,
 		"department":         user.Department,
+		"status":             user.Status,
+		"employmentStatus":   user.EmploymentHistoryStatus,
 	}
 
 	return profile

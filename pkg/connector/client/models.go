@@ -1,17 +1,18 @@
 package client
 
 type User struct {
-	Id              string `json:"id"`
-	FirstName       string `json:"firstName"`
-	LastName        string `json:"lastName"`
-	Supervisor      string `json:"supervisor"`
-	SupervisorEId   string `json:"supervisorEId"`
-	SupervisorId    string `json:"supervisorId"`
-	SupervisorEmail string `json:"supervisorEmail"`
-	Email           string `json:"workEmail"`
-	Status          string `json:"status"`
-	Division        string `json:"division"`
-	Department      string `json:"department"`
+	Id                      string `json:"id"`
+	FirstName               string `json:"firstName"`
+	LastName                string `json:"lastName"`
+	Supervisor              string `json:"supervisor"`
+	SupervisorEId           string `json:"supervisorEId"`
+	SupervisorId            string `json:"supervisorId"`
+	SupervisorEmail         string `json:"supervisorEmail"`
+	Email                   string `json:"workEmail"`
+	Status                  string `json:"status"`
+	Division                string `json:"division"`
+	Department              string `json:"department"`
+	EmploymentHistoryStatus string `json:"employmentHistoryStatus"`
 }
 
 type Fields struct {
