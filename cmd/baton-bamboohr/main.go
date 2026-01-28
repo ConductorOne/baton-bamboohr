@@ -9,6 +9,7 @@ import (
 	"github.com/conductorone/baton-bamboohr/pkg/connector"
 	"github.com/conductorone/baton-sdk/pkg/config"
 	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
+	"github.com/conductorone/baton-sdk/pkg/connectorrunner"
 	"github.com/conductorone/baton-sdk/pkg/field"
 	"github.com/conductorone/baton-sdk/pkg/types"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
@@ -25,6 +26,7 @@ func main() {
 		"baton-bamboohr",
 		getConnector,
 		cfg.Configuration,
+		connectorrunner.WithDefaultCapabilitiesConnectorBuilder(&connector.BambooHr{}),
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
