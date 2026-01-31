@@ -13,6 +13,7 @@ type User struct {
 	Division                string `json:"division"`
 	Department              string `json:"department"`
 	EmploymentHistoryStatus string `json:"employmentHistoryStatus"`
+	TerminationDate         string `json:"terminationDate"`
 }
 
 type Fields struct {
