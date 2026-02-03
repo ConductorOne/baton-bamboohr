@@ -45,6 +45,11 @@
       "id": "status",
       "type": "string",
       "name": "status"
+    },
+    {
+      "id": "terminationDate",
+      "type": "date",
+      "name": "terminationDate"
     }
   ],
   "employees": [{
@@ -56,6 +61,7 @@
     "supervisorId": "supervisorId",
     "supervisorEmail": "supervisorEmail",
     "workEmail": "workEmail",
-    "status": "status"
+    "status": "status",
+    "terminationDate": "2024-12-31"
   }]
 }

@@ -133,6 +133,7 @@ func userProfile(user *client.User) map[string]interface{} {
 		"department":         user.Department,
 		"status":             user.Status,
 		"employmentStatus":   user.EmploymentHistoryStatus,
+		"terminationDate":    user.TerminationDate,
 	}
 
 	return profile
