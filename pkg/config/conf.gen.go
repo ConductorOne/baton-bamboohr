@@ -6,6 +6,7 @@ import "reflect"
 type Bamboohr struct {
 	CompanyDomain string `mapstructure:"company-domain"`
 	ApiKey string `mapstructure:"api-key"`
+	BaseUrl string `mapstructure:"base-url"`
 }
 
 func (c* Bamboohr) findFieldByTag(tagValue string) (any, bool) {

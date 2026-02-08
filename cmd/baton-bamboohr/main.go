@@ -62,6 +62,7 @@ func getConnector(ctx context.Context, bhrc *cfg.Bamboohr) (types.ConnectorServe
 		ctx,
 		companyDomain,
 		apiKey,
+		bhrc.BaseUrl,
 	)
 	if err != nil {
 		l.Error("error creating connector", zap.Error(err))
