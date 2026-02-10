@@ -1,6 +1,6 @@
 ![Baton Logo](./docs/images/baton-logo.png)
 
-# `baton-bamboohr` [![Go Reference](https://pkg.go.dev/badge/github.com/conductorone/baton-bamboohr.svg)](https://pkg.go.dev/github.com/conductorone/baton-bamboohr) ![main ci](https://github.com/conductorone/baton-bamboohr/actions/workflows/main.yaml/badge.svg)
+# `baton-bamboohr` [![Go Reference](https://pkg.go.dev/badge/github.com/conductorone/baton-bamboohr.svg)](https://pkg.go.dev/github.com/conductorone/baton-bamboohr) ![ci](https://github.com/conductorone/baton-bamboohr/actions/workflows/ci.yaml/badge.svg)
 
 `baton-bamboohr` is a connector for BambooHR built using the [Baton SDK](https://github.com/conductorone/baton-sdk). It communicates with the BambooHR API to sync data about users.
 
