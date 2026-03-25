@@ -38,6 +38,9 @@ func New(ctx context.Context, apiKey string, companyDomain string, baseURL strin
 		if err != nil {
 			return nil, fmt.Errorf("invalid base URL: %w", err)
 		}
+		if parsedBaseURL.Scheme != "http" && parsedBaseURL.Scheme != "https" {
+			return nil, fmt.Errorf("base-url must have http or https scheme, got %q", parsedBaseURL.Scheme)
+		}
 	} else {
 		parsedBaseURL = &url.URL{
 			Scheme: "https",
