@@ -22,6 +22,7 @@ func TestUsersList(t *testing.T) {
 			ctx,
 			"mock-access-token",
 			"mock-company",
+			"",
 		)
 		if err != nil {
 			t.Fatal(err)
