@@ -21,8 +21,9 @@ func New(
 	ctx context.Context,
 	customerDomain string,
 	apiKey string,
+	baseURL string,
 ) (*BambooHr, error) {
-	client, err := client.New(ctx, apiKey, customerDomain)
+	client, err := client.New(ctx, apiKey, customerDomain, baseURL)
 	if err != nil {
 		return nil, err
 	}

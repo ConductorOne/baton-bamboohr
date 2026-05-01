@@ -25,22 +25,33 @@ type Client interface {
 	ListUsers(ctx context.Context, pagination string) ([]*User, *v2.RateLimitDescription, error)
 }
 
-func New(ctx context.Context, apiKey string, companyDomain string) (*BambooHRClient, error) {
+func New(ctx context.Context, apiKey string, companyDomain string, baseURL string) (*BambooHRClient, error) {
 	httpClient, err := uhttp.NewClient(ctx, uhttp.WithLogger(true, nil))
 	if err != nil {
 		return nil, err
 	}
 	wrapper := uhttp.NewBaseHttpClient(httpClient)
 
-	baseUrl := url.URL{
-		Scheme: "https",
-		Host:   APIDomain,
+	var parsedBaseURL *url.URL
+	if baseURL != "" {
+		parsedBaseURL, err = url.Parse(baseURL)
+		if err != nil {
+			return nil, fmt.Errorf("invalid base URL: %w", err)
+		}
+		if parsedBaseURL.Scheme != "http" && parsedBaseURL.Scheme != "https" {
+			return nil, fmt.Errorf("base-url must have http or https scheme, got %q", parsedBaseURL.Scheme)
+		}
+	} else {
+		parsedBaseURL = &url.URL{
+			Scheme: "https",
+			Host:   APIDomain,
+		}
 	}
 	return &BambooHRClient{
 		wrapper:       wrapper,
 		ApiKey:        apiKey,
 		CompanyDomain: companyDomain,
-		BaseUrl:       &baseUrl,
+		BaseUrl:       parsedBaseURL,
 	}, nil
 }
 

@@ -18,10 +18,17 @@ var (
 		field.WithRequired(true),
 		field.WithIsSecret(true),
 	)
+	BaseURLField = field.StringField(
+		"base-url",
+		field.WithDescription("Override the BambooHR API URL (for testing)"),
+		field.WithHidden(true),
+		field.WithExportTarget(field.ExportTargetCLIOnly),
+	)
 
 	ConfigurationFields = []field.SchemaField{
 		CompanyDomainField,
 		ApiKeyField,
+		BaseURLField,
 	}
 	Configuration = field.NewConfiguration(ConfigurationFields)
 
