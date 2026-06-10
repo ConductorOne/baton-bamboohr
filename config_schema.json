@@ -24,6 +24,12 @@
       }
     },
     {
+      "name": "custom-fields",
+      "displayName": "Custom Fields",
+      "description": "List of custom BambooHR field names to include in user profiles (e.g., customField1, customJobTitle).",
+      "stringSliceField": {}
+    },
+    {
       "name": "log-level",
       "description": "The log level: debug, info, warn, error",
       "isOps": true,

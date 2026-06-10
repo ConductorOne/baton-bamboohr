@@ -24,11 +24,17 @@ var (
 		field.WithHidden(true),
 		field.WithExportTarget(field.ExportTargetCLIOnly),
 	)
+	CustomFieldsField = field.StringSliceField(
+		"custom-fields",
+		field.WithDisplayName("Custom Fields"),
+		field.WithDescription("List of custom BambooHR field names to include in user profiles (e.g., customField1, customJobTitle)."),
+	)
 
 	ConfigurationFields = []field.SchemaField{
 		CompanyDomainField,
 		ApiKeyField,
 		BaseURLField,
+		CustomFieldsField,
 	}
 	Configuration = field.NewConfiguration(ConfigurationFields)
 

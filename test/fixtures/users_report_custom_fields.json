@@ -1,0 +1,79 @@
+{
+  "title": "ConductorOne Employees List Report",
+  "fields": [
+    {
+      "id": "id",
+      "type": "string",
+      "name": "id"
+    },
+    {
+      "id": "firstName",
+      "type": "string",
+      "name": "firstName"
+    },
+    {
+      "id": "lastName",
+      "type": "string",
+      "name": "lastName"
+    },
+    {
+      "id": "supervisor",
+      "type": "string",
+      "name": "supervisor"
+    },
+    {
+      "id": "supervisorEId",
+      "type": "string",
+      "name": "supervisorEId"
+    },
+    {
+      "id": "supervisorId",
+      "type": "string",
+      "name": "supervisorId"
+    },
+    {
+      "id": "supervisorEmail",
+      "type": "string",
+      "name": "supervisorEmail"
+    },
+    {
+      "id": "workEmail",
+      "type": "string",
+      "name": "workEmail"
+    },
+    {
+      "id": "status",
+      "type": "string",
+      "name": "status"
+    },
+    {
+      "id": "terminationDate",
+      "type": "date",
+      "name": "terminationDate"
+    },
+    {
+      "id": "customJobTitle",
+      "type": "text",
+      "name": "Job Title"
+    },
+    {
+      "id": "customCostCenter",
+      "type": "text",
+      "name": "Cost Center"
+    }
+  ],
+  "employees": [{
+    "id": "101",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "supervisor": "John Smith",
+    "supervisorEId": "50",
+    "supervisorId": "50",
+    "supervisorEmail": "john.smith@example.com",
+    "workEmail": "jane.doe@example.com",
+    "status": "Active",
+    "terminationDate": "0000-00-00",
+    "customJobTitle": "Senior Engineer",
+    "customCostCenter": "ENG-100"
+  }]
+}

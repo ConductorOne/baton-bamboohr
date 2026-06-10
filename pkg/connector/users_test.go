@@ -18,18 +18,19 @@ func TestUsersList(t *testing.T) {
 		server := test.FixturesServer()
 		defer server.Close()
 
-		confluenceClient, err := client.New(
+		bambooClient, err := client.New(
 			ctx,
 			"mock-access-token",
 			"mock-company",
 			"",
+			nil,
 		)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		confluenceClient.SetBaseUrl(server.URL)
-		c := userBuilder(confluenceClient)
+		bambooClient.SetBaseUrl(server.URL)
+		c := userBuilder(bambooClient)
 
 		resources := make([]*v2.Resource, 0)
 		pToken := pagination.Token{
@@ -52,5 +53,52 @@ func TestUsersList(t *testing.T) {
 		require.NotNil(t, resources)
 		require.Len(t, resources, 1)
 		require.NotEmpty(t, resources[0].Id)
+	})
+
+	t.Run("should include custom fields in user profile", func(t *testing.T) {
+		server := test.FixturesServerWithCustomFields()
+		defer server.Close()
+
+		bambooClient, err := client.New(
+			ctx,
+			"mock-access-token",
+			"mock-company",
+			"",
+			[]string{"customJobTitle", "customCostCenter"},
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		bambooClient.SetBaseUrl(server.URL)
+		c := userBuilder(bambooClient)
+
+		resources, _, _, err := c.List(ctx, nil, &pagination.Token{})
+		require.NoError(t, err)
+		require.Len(t, resources, 1)
+
+		userTrait := &v2.UserTrait{}
+		annos := resources[0].GetAnnotations()
+		for _, a := range annos {
+			if a.MessageIs(userTrait) {
+				err := a.UnmarshalTo(userTrait)
+				require.NoError(t, err)
+				break
+			}
+		}
+
+		profile := userTrait.GetProfile()
+		require.NotNil(t, profile)
+
+		fields := profile.GetFields()
+		require.NotNil(t, fields)
+
+		jobTitle := fields["customJobTitle"]
+		require.NotNil(t, jobTitle)
+		require.Equal(t, "Senior Engineer", jobTitle.GetStringValue())
+
+		costCenter := fields["customCostCenter"]
+		require.NotNil(t, costCenter)
+		require.Equal(t, "ENG-100", costCenter.GetStringValue())
 	})
 }

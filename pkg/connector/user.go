@@ -136,5 +136,9 @@ func userProfile(user *client.User) map[string]interface{} {
 		"terminationDate":    user.TerminationDate,
 	}
 
+	for k, v := range user.CustomFields {
+		profile[k] = v
+	}
+
 	return profile
 }

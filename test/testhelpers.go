@@ -42,6 +42,14 @@ func AssertNoRatelimitAnnotations(
 }
 
 func FixturesServer() *httptest.Server {
+	return fixturesServerWithFile("../../test/fixtures/users_report.json")
+}
+
+func FixturesServerWithCustomFields() *httptest.Server {
+	return fixturesServerWithFile("../../test/fixtures/users_report_custom_fields.json")
+}
+
+func fixturesServerWithFile(usersFixture string) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(
 			func(writer http.ResponseWriter, request *http.Request) {
@@ -51,7 +59,7 @@ func FixturesServer() *httptest.Server {
 				routeUrl := request.URL.String()
 				switch {
 				case strings.Contains(routeUrl, client.UsersListUrlPath):
-					filename = "../../test/fixtures/users_report.json"
+					filename = usersFixture
 				default:
 					// This should never happen in tests.
 					panic(fmt.Errorf("bad url: %s", routeUrl))

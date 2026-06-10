@@ -19,13 +19,14 @@ type BambooHRClient struct {
 	ApiKey        string
 	CompanyDomain string
 	BaseUrl       *url.URL
+	CustomFields  []string
 }
 
 type Client interface {
 	ListUsers(ctx context.Context, pagination string) ([]*User, *v2.RateLimitDescription, error)
 }
 
-func New(ctx context.Context, apiKey string, companyDomain string, baseURL string) (*BambooHRClient, error) {
+func New(ctx context.Context, apiKey string, companyDomain string, baseURL string, customFields []string) (*BambooHRClient, error) {
 	httpClient, err := uhttp.NewClient(ctx, uhttp.WithLogger(true, nil))
 	if err != nil {
 		return nil, err
@@ -52,6 +53,7 @@ func New(ctx context.Context, apiKey string, companyDomain string, baseURL strin
 		ApiKey:        apiKey,
 		CompanyDomain: companyDomain,
 		BaseUrl:       parsedBaseURL,
+		CustomFields:  customFields,
 	}, nil
 }
 
@@ -75,22 +77,25 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 	v.Set("onlyCurrent", "false")
 	reqURL := c.newUnPaginatedURL(UsersListUrlPath, v)
 
+	fields := []string{
+		"firstName",
+		"lastName",
+		"supervisor",
+		"supervisorEId",
+		"supervisorId",
+		"supervisorEmail",
+		"workEmail",
+		"status",
+		"department",
+		"division",
+		"employmentHistoryStatus",
+		"terminationDate",
+	}
+	fields = append(fields, c.CustomFields...)
+
 	listUsersReqBody := ReqFields{
-		Title: "ConductorOne Employees List Report",
-		Fields: []string{
-			"firstName",
-			"lastName",
-			"supervisor",
-			"supervisorEId",
-			"supervisorId",
-			"supervisorEmail",
-			"workEmail",
-			"status",
-			"department",
-			"division",
-			"employmentHistoryStatus",
-			"terminationDate",
-		},
+		Title:  "ConductorOne Employees List Report",
+		Fields: fields,
 	}
 
 	ratelimitData, err := c.makeRequest(

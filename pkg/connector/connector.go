@@ -22,8 +22,9 @@ func New(
 	customerDomain string,
 	apiKey string,
 	baseURL string,
+	customFields []string,
 ) (*BambooHr, error) {
-	client, err := client.New(ctx, apiKey, customerDomain, baseURL)
+	client, err := client.New(ctx, apiKey, customerDomain, baseURL, customFields)
 	if err != nil {
 		return nil, err
 	}
