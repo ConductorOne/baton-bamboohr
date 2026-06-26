@@ -129,11 +129,30 @@ func userProfile(user *client.User) map[string]interface{} {
 		"supervisorId":       user.SupervisorId,
 		"supervisorEmail":    user.SupervisorEmail,
 		"user_id":            user.Id,
+		"firstName":          user.FirstName,
+		"lastName":           user.LastName,
 		"division":           user.Division,
 		"department":         user.Department,
 		"status":             user.Status,
 		"employmentStatus":   user.EmploymentHistoryStatus,
 		"terminationDate":    user.TerminationDate,
+		"jobTitle":           user.JobTitle,
+		"hireDate":           user.HireDate,
+		"originalHireDate":   user.OriginalHireDate,
+		"employeeNumber":     user.EmployeeNumber,
+		"location":           user.Location,
+		"preferredName":      user.PreferredName,
+		"displayName":        user.DisplayName,
+		"reportsTo":          user.ReportsTo,
+	}
+
+	// Merge configured custom fields. Don't let a custom field clobber a
+	// standard profile attribute.
+	for k, v := range user.CustomFields {
+		if _, exists := profile[k]; exists {
+			continue
+		}
+		profile[k] = v
 	}
 
 	return profile

@@ -24,6 +24,12 @@
       }
     },
     {
+      "name": "custom-fields",
+      "displayName": "Custom Fields",
+      "description": "Additional BambooHR field names (standard or custom) to include in synced user profiles, e.g. customField4444,nickname.",
+      "stringSliceField": {}
+    },
+    {
       "name": "log-level",
       "description": "The log level: debug, info, warn, error",
       "isOps": true,
