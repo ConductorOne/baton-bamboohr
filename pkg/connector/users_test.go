@@ -100,8 +100,33 @@ func TestUsersList(t *testing.T) {
 		require.Len(t, resources, 1)
 
 		profile := profileFields(t, resources[0])
-		require.Equal(t, "Ace", profile["customField4444"].GetStringValue())
-		require.Equal(t, "ENG-100", profile["customCostCenter"].GetStringValue())
+		require.Equal(t, "Ace", profile["custom_customField4444"].GetStringValue())
+		require.Equal(t, "ENG-100", profile["custom_customCostCenter"].GetStringValue())
+	})
+
+	t.Run("should not let a custom field named like a built-in clobber the standard attribute", func(t *testing.T) {
+		server := test.FixturesServerWithCustomFields()
+		defer server.Close()
+
+		// "employmentStatus" is the emitted profile key for the standard
+		// employmentHistoryStatus field. Configuring it as a custom field must
+		// land under the custom_ prefix rather than being silently dropped.
+		bambooClient, err := client.New(
+			ctx,
+			"mock-access-token",
+			"mock-company",
+			"",
+			[]string{"employmentStatus"},
+		)
+		require.NoError(t, err)
+		bambooClient.SetBaseUrl(server.URL)
+
+		resources, _, _, err := userBuilder(bambooClient).List(ctx, nil, &pagination.Token{})
+		require.NoError(t, err)
+		require.Len(t, resources, 1)
+
+		profile := profileFields(t, resources[0])
+		require.Equal(t, "Full-Time", profile["custom_employmentStatus"].GetStringValue())
 	})
 
 	t.Run("should error when a configured custom field is missing from the response", func(t *testing.T) {

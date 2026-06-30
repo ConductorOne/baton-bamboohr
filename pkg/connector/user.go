@@ -146,13 +146,13 @@ func userProfile(user *client.User) map[string]interface{} {
 		"reportsTo":          user.ReportsTo,
 	}
 
-	// Merge configured custom fields. Don't let a custom field clobber a
-	// standard profile attribute.
+	// Merge configured custom fields under a "custom_" prefix. Built-in profile
+	// keys never start with "custom_", so a configured field can never collide
+	// with (and be silently dropped by) a standard attribute. An underscore —
+	// not a dot — keeps the key from being misread as a path in C1 rule/report
+	// expressions.
 	for k, v := range user.CustomFields {
-		if _, exists := profile[k]; exists {
-			continue
-		}
-		profile[k] = v
+		profile["custom_"+k] = v
 	}
 
 	return profile

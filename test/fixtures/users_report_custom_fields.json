@@ -15,7 +15,8 @@
     {"id": "originalHireDate", "type": "date", "name": "originalHireDate"},
     {"id": "reportsTo", "type": "string", "name": "reportsTo"},
     {"id": "customField4444", "type": "text", "name": "Nickname"},
-    {"id": "customCostCenter", "type": "text", "name": "Cost Center"}
+    {"id": "customCostCenter", "type": "text", "name": "Cost Center"},
+    {"id": "employmentStatus", "type": "text", "name": "Employment Status"}
   ],
   "employees": [
     {
@@ -33,7 +34,8 @@
       "originalHireDate": "2018-03-01",
       "reportsTo": "John Manager",
       "customField4444": "Ace",
-      "customCostCenter": "ENG-100"
+      "customCostCenter": "ENG-100",
+      "employmentStatus": "Full-Time"
     }
   ]
 }
