@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -94,6 +95,21 @@ func (c *BambooHRClient) ListUsers(ctx context.Context) (
 		listUsersReqBody,
 	)
 	if err != nil {
+		// BambooHR rejects the whole report with 406 Not Acceptable when the
+		// request references a field that doesn't exist in the schema. The
+		// standard fields always exist, so in practice a 406 means one of the
+		// configured custom-fields is misspelled or isn't a real BambooHR field
+		// alias. validateCustomFields can't catch this — it only runs on a
+		// successful (200) response — so surface a clear, actionable error here.
+		var reqErr *RequestError
+		if len(c.CustomFields) > 0 && errors.As(err, &reqErr) && reqErr.Status == http.StatusNotAcceptable {
+			return nil, ratelimitData, fmt.Errorf(
+				"bambooHR-client: report rejected (406 Not Acceptable) for a non-existent field. "+
+					"One of the configured custom-fields %v is not a valid BambooHR field alias; "+
+					"check the field names against the BambooHR field-name reference: %w",
+				c.CustomFields, err,
+			)
+		}
 		return nil, ratelimitData, fmt.Errorf("bambooHR-client: error listing users %w", err)
 	}
 

@@ -2,6 +2,7 @@ package connector
 
 import (
 	"context"
+	"net/http"
 	"testing"
 
 	"github.com/conductorone/baton-bamboohr/pkg/connector/client"
@@ -146,6 +147,27 @@ func TestUsersList(t *testing.T) {
 		_, _, _, err = userBuilder(bambooClient).List(ctx, nil, &pagination.Token{})
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "doesNotExist")
+	})
+
+	t.Run("should return a clear custom-fields error when BambooHR rejects a non-existent field with 406", func(t *testing.T) {
+		server := test.FixturesServerWithStatus(http.StatusNotAcceptable, "The request contains references to non-existent fields.")
+		defer server.Close()
+
+		bambooClient, err := client.New(
+			ctx,
+			"mock-access-token",
+			"mock-company",
+			"",
+			[]string{"notARealField"},
+		)
+		require.NoError(t, err)
+		bambooClient.SetBaseUrl(server.URL)
+
+		_, _, _, err = userBuilder(bambooClient).List(ctx, nil, &pagination.Token{})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "406")
+		require.Contains(t, err.Error(), "notARealField")
+		require.Contains(t, err.Error(), "field-name reference")
 	})
 }
 
