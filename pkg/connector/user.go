@@ -129,11 +129,30 @@ func userProfile(user *client.User) map[string]interface{} {
 		"supervisorId":       user.SupervisorId,
 		"supervisorEmail":    user.SupervisorEmail,
 		"user_id":            user.Id,
+		"firstName":          user.FirstName,
+		"lastName":           user.LastName,
 		"division":           user.Division,
 		"department":         user.Department,
 		"status":             user.Status,
 		"employmentStatus":   user.EmploymentHistoryStatus,
 		"terminationDate":    user.TerminationDate,
+		"jobTitle":           user.JobTitle,
+		"hireDate":           user.HireDate,
+		"originalHireDate":   user.OriginalHireDate,
+		"employeeNumber":     user.EmployeeNumber,
+		"location":           user.Location,
+		"preferredName":      user.PreferredName,
+		"displayName":        user.DisplayName,
+		"reportsTo":          user.ReportsTo,
+	}
+
+	// Merge configured custom fields under a "custom_" prefix. Built-in profile
+	// keys never start with "custom_", so a configured field can never collide
+	// with (and be silently dropped by) a standard attribute. An underscore —
+	// not a dot — keeps the key from being misread as a path in C1 rule/report
+	// expressions.
+	for k, v := range user.CustomFields {
+		profile["custom_"+k] = v
 	}
 
 	return profile

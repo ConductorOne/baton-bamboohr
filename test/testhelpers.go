@@ -42,17 +42,43 @@ func AssertNoRatelimitAnnotations(
 }
 
 func FixturesServer() *httptest.Server {
+	return fixturesServerForFile("../../test/fixtures/users_report.json")
+}
+
+// FixturesServerWithCustomFields serves a report fixture that includes the
+// additional standard fields and a couple of custom fields.
+func FixturesServerWithCustomFields() *httptest.Server {
+	return fixturesServerForFile("../../test/fixtures/users_report_custom_fields.json")
+}
+
+// FixturesServerWithStatus serves the given status code and body for the users
+// report request, so tests can exercise error paths (e.g. a 406 for a
+// non-existent field).
+func FixturesServerWithStatus(statusCode int, body string) *httptest.Server {
+	return httptest.NewServer(
+		http.HandlerFunc(
+			func(writer http.ResponseWriter, request *http.Request) {
+				writer.Header().Set(uhttp.ContentType, "application/json")
+				routeUrl := request.URL.String()
+				if !strings.Contains(routeUrl, client.UsersListUrlPath) {
+					// This should never happen in tests.
+					panic(fmt.Errorf("bad url: %s", routeUrl))
+				}
+				writer.WriteHeader(statusCode)
+				_, _ = writer.Write([]byte(body))
+			},
+		),
+	)
+}
+
+func fixturesServerForFile(filename string) *httptest.Server {
 	return httptest.NewServer(
 		http.HandlerFunc(
 			func(writer http.ResponseWriter, request *http.Request) {
 				writer.Header().Set(uhttp.ContentType, "application/json")
 				writer.WriteHeader(http.StatusOK)
-				var filename string
 				routeUrl := request.URL.String()
-				switch {
-				case strings.Contains(routeUrl, client.UsersListUrlPath):
-					filename = "../../test/fixtures/users_report.json"
-				default:
+				if !strings.Contains(routeUrl, client.UsersListUrlPath) {
 					// This should never happen in tests.
 					panic(fmt.Errorf("bad url: %s", routeUrl))
 				}
