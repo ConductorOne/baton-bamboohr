@@ -14,6 +14,6 @@ permissions:
 
 jobs:
   connector-docs:
-    uses: ConductorOne/github-workflows/.github/workflows/connector-docs-verify.yaml@v4
+    uses: ConductorOne/github-workflows/.github/workflows/connector-docs-verify.yaml@b918eb03bca0f95c3ab853d3220da150f3b29404
     with:
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
