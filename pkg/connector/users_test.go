@@ -171,18 +171,11 @@ func TestUsersList(t *testing.T) {
 	})
 }
 
-// profileFields pulls the user-trait profile field map off a synced resource.
+// profileFields pulls the resource-level profile field map off a synced resource.
 func profileFields(t *testing.T, resource *v2.Resource) map[string]*structpb.Value {
 	t.Helper()
 
-	userTrait := &v2.UserTrait{}
-	for _, a := range resource.GetAnnotations() {
-		if a.MessageIs(userTrait) {
-			require.NoError(t, a.UnmarshalTo(userTrait))
-			break
-		}
-	}
-	profile := userTrait.GetProfile()
+	profile := resource.GetProfile()
 	require.NotNil(t, profile)
 	return profile.GetFields()
 }
