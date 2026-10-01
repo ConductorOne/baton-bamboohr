@@ -1,0 +1,280 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BambooHR API (baton-bamboohr connector surface)",
+    "version": "1.0.0",
+    "description": "This document describes ONLY the BambooHR API surface the baton-bamboohr connector (github.com/conductorone/baton-bamboohr) actually calls. It is not a description of the full BambooHR API. The connector makes exactly one kind of request: it POSTs a Custom Report definition to `/reports/custom` and reads back the generated report as the list of Baton Users. There is no separate auth-check/validate endpoint -- the connector verifies credentials by running this same report request (see `Verify` in pkg/connector/client/client.go).\n\nBambooHR's Request Custom Report endpoint is marked deprecated by the vendor in favor of Datasets > Get Data from Dataset, but it is what this connector currently calls, so it is what this spec documents."
+  },
+  "servers": [
+    {
+      "url": "https://api.bamboohr.com/api/gateway.php/{companyDomain}/v1",
+      "description": "Default production BambooHR API Gateway host, as hardcoded in pkg/connector/client/request.go (APIDomain=\"api.bamboohr.com\", APIPath=\"api\", APIGateway=\"gateway.php\", APIVersion=\"v1\"). The connector's required `company-domain` config field (env BATON_COMPANY_DOMAIN) supplies {companyDomain} -- this is the BambooHR company subdomain (the \"acme\" in acme.bamboohr.com), not a full URL. The connector also exposes a hidden, CLI-only `base-url` config field (env BATON_BASE_URL, see pkg/config) that, when set, replaces this entire scheme+host+path-prefix wholesale (used only to point the connector at a mock server in tests) -- `{companyDomain}` and the gateway path segments are NOT applied in that case; the single endpoint path below is appended directly to whatever `base-url` is set to.",
+      "variables": {
+        "companyDomain": {
+          "default": "subdomain",
+          "description": "BambooHR company domain. Sourced from the connector's `company-domain` / BATON_COMPANY_DOMAIN config field (required, no default in the connector)."
+        }
+      }
+    }
+  ],
+  "security": [
+    { "basicAuth": [] }
+  ],
+  "paths": {
+    "/reports/custom": {
+      "post": {
+        "operationId": "requestCustomReport",
+        "summary": "Request a custom employee report",
+        "description": "The connector's sole API operation. Implemented in `ListUsers`, pkg/connector/client/client.go:70-121, called from `UserResourceType.List`, pkg/connector/user.go:33. Builds an ad-hoc report naming every field in `StandardFields` plus any operator-configured `--custom-fields`, and reads back one row per BambooHR employee -- these rows become Baton User resources. The request always asks for every employee regardless of status (`onlyCurrent=false`), both Active and Inactive. There is no pagination: this single request returns the complete employee list in one response, and the connector always reports an empty next-page token back to the Baton SDK (pkg/connector/user.go:33-53 ignores the incoming pagination.Token and always returns `\"\"`).",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["json", "xml", "csv", "xls", "pdf"],
+              "default": "json"
+            },
+            "description": "Response format. Per vendor docs this is optional when an `Accept` header is supplied, and case-insensitive. The connector always hardcodes it to `\"json\"` (pkg/connector/client/client.go:77, `v.Set(\"format\", \"json\")`) and additionally sends `Accept: application/json` (uhttp.WithAcceptJSONHeader) -- the connector only ever handles the JSON response shape modeled below."
+          },
+          {
+            "name": "onlyCurrent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Per vendor docs, restricts historical fields to current values and defaults to `true`. The connector always hardcodes this to `false` (pkg/connector/client/client.go:78, `v.Set(\"onlyCurrent\", \"false\")`) specifically so terminated/inactive employees and their historical field values are included, since Baton needs to see disabled users, not just active ones."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CustomReportRequest" },
+              "example": {
+                "title": "ConductorOne Employees List Report",
+                "fields": [
+                  "firstName",
+                  "lastName",
+                  "supervisor",
+                  "supervisorEId",
+                  "supervisorId",
+                  "supervisorEmail",
+                  "workEmail",
+                  "status",
+                  "department",
+                  "division",
+                  "employmentHistoryStatus",
+                  "terminationDate",
+                  "jobTitle",
+                  "hireDate",
+                  "originalHireDate",
+                  "employeeNumber",
+                  "location",
+                  "preferredName",
+                  "displayName",
+                  "reportsTo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report generated successfully. The connector decodes this directly into `ReportUserResults` (pkg/connector/client/models.go:109-113) via `uhttp.WithJSONResponse`.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CustomReportResponse" },
+                "example": {
+                  "title": "ConductorOne Employees List Report",
+                  "fields": [
+                    { "id": "id", "type": "string", "name": "id" },
+                    { "id": "firstName", "type": "string", "name": "firstName" },
+                    { "id": "lastName", "type": "string", "name": "lastName" },
+                    { "id": "workEmail", "type": "string", "name": "workEmail" },
+                    { "id": "status", "type": "string", "name": "status" },
+                    { "id": "terminationDate", "type": "date", "name": "terminationDate" }
+                  ],
+                  "employees": [
+                    {
+                      "id": "id",
+                      "firstName": "firstName",
+                      "lastName": "lastName",
+                      "supervisor": "supervisor",
+                      "supervisorEId": "supervisorEId",
+                      "supervisorId": "supervisorId",
+                      "supervisorEmail": "supervisorEmail",
+                      "workEmail": "workEmail",
+                      "status": "status",
+                      "terminationDate": "2024-12-31"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key. Documented by the vendor's API-details page (\"Your API key is missing\"). Not distinguished from other non-2xx statuses by the connector -- surfaced generically as `RequestError` (pkg/connector/client/request.go:23-36).",
+            "content": {
+              "text/plain": { "schema": { "$ref": "#/components/schemas/ErrorBody" } }
+            }
+          },
+          "403": {
+            "description": "API key belongs to a user without the required permissions. Documented by the vendor's API-details page. Not distinguished from other non-2xx statuses by the connector.",
+            "content": {
+              "text/plain": { "schema": { "$ref": "#/components/schemas/ErrorBody" } }
+            }
+          },
+          "406": {
+            "description": "One or more requested `fields` entries is not a valid BambooHR field alias for this company -- BambooHR rejects the whole report. The connector detects this status specifically (pkg/connector/client/client.go:97-113) to return an actionable error naming the misconfigured `--custom-fields` value(s). Body shape confirmed by test fixture (pkg/connector/users_test.go, `test.FixturesServerWithStatus`): a plain-text message, not JSON.",
+            "content": {
+              "text/plain": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" },
+                "example": "The request contains references to non-existent fields."
+              }
+            }
+          },
+          "503": {
+            "description": "Rate limit exceeded. Per vendor docs: \"This endpoint is currently unavailable... Commonly, this is due to rate limiting, and a 'Retry-After' header may be available.\" The connector detects this status specifically (pkg/connector/client/ratelimit.go:37-54) and, when present, parses `Retry-After` as either an RFC1123 date or a delay-seconds integer to compute a retryable gRPC `Unavailable` error with a reset time.",
+            "headers": {
+              "Retry-After": {
+                "description": "Optional. Either an HTTP-date (RFC1123) or a delay in seconds. Parsed in pkg/connector/client/ratelimit.go:17-35.",
+                "schema": { "type": "string" }
+              }
+            },
+            "content": {
+              "text/plain": { "schema": { "$ref": "#/components/schemas/ErrorBody" } }
+            }
+          },
+          "default": {
+            "description": "Any other non-2xx status is treated generically: the connector reads the raw response body as text and returns it verbatim inside a `RequestError{Status, URL, Body}` (pkg/connector/client/request.go:23-36, 96-105). The exact body shape for other statuses was not proven against vendor docs or a fixture.",
+            "content": {
+              "text/plain": { "schema": { "$ref": "#/components/schemas/ErrorBody" } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "The connector's `api-key` config field (env BATON_API_KEY, required, secret) is sent as the Basic-Auth username with an empty password: `req.SetBasicAuth(c.ApiKey, \"\")` (pkg/connector/client/request.go:72). This matches BambooHR's documented API-key-as-basic-auth-username scheme; the vendor's own examples commonly use a non-empty placeholder (e.g. \"x\") as the password, but the connector sends an empty string and this is what it runs against in production."
+      }
+    },
+    "schemas": {
+      "CustomReportRequest": {
+        "type": "object",
+        "description": "Request body built in pkg/connector/client/client.go:85-88 as `ReqFields` (pkg/connector/client/models.go:104-107).",
+        "required": ["fields"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Optional per vendor docs. The connector always sends the fixed literal \"ConductorOne Employees List Report\" (pkg/connector/client/client.go:86); it does not expose this as configurable.",
+            "example": "ConductorOne Employees List Report"
+          },
+          "fields": {
+            "type": "array",
+            "description": "BambooHR field names (standard or custom) to include in the report. Required, max 400 per vendor docs. The connector always sends `StandardFields` (pkg/connector/client/models.go:35-56, 19 fixed names) plus whatever the operator configured in the `custom-fields` config field (env BATON_CUSTOM_FIELDS).",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "filters": {
+            "description": "Vendor-documented optional filter object (`lastChanged`, `employeeIds`). The connector never sets this field -- included here only because it is part of the vendor's request schema, not because the connector uses it. Shape is unproven against a fixture; treat as a blocker if this ever needs to be modeled precisely.",
+            "type": "object"
+          },
+          "filterDuplicates": {
+            "type": "string",
+            "enum": ["yes", "no"],
+            "description": "Vendor-documented optional flag, defaults to enabled. The connector never sets this field."
+          }
+        }
+      },
+      "CustomReportResponse": {
+        "type": "object",
+        "description": "Response body decoded into `ReportUserResults` (pkg/connector/client/models.go:109-113). Shape confirmed by both vendor docs and the repo's test fixtures (test/fixtures/users_report.json, test/fixtures/users_report_custom_fields.json).",
+        "required": ["title", "fields", "employees"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Echoes the report title."
+          },
+          "fields": {
+            "type": "array",
+            "description": "Describes which of the requested fields were actually returned. The connector cross-checks this against the configured `custom-fields` to fail fast on a misspelled field name that the 406 check doesn't catch (pkg/connector/client/client.go:126-150) -- vendor docs note unknown/inaccessible field ids are \"silently omitted\" from both this array and each employee row rather than erroring.",
+            "items": { "$ref": "#/components/schemas/ReportField" }
+          },
+          "employees": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Employee" }
+          }
+        }
+      },
+      "ReportField": {
+        "type": "object",
+        "description": "One entry in the response's `fields` array (`Fields` struct, pkg/connector/client/models.go:98-102).",
+        "required": ["id", "type", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "BambooHR field alias, e.g. \"workEmail\"."
+          },
+          "type": {
+            "type": "string",
+            "description": "BambooHR's declared type for this field. Not formally enumerated by vendor docs; values observed in this repo's test fixtures include \"string\", \"date\", and \"text\". Modeled as an unconstrained string rather than guessing the full enum.",
+            "example": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable field name."
+          }
+        }
+      },
+      "Employee": {
+        "type": "object",
+        "description": "One entry in the response's `employees` array (`User` struct, pkg/connector/client/models.go:5-96). Every property below is read by the connector and mapped onto the Baton User resource/profile (pkg/connector/user.go:95-150). Only `id` is marked required: vendor docs show it present on every employee row, and per vendor docs any other requested field that is unknown or inaccessible is silently omitted from the row rather than being sent as null, so none of the rest can be proven always-present. BambooHR returns every value as a JSON string (confirmed by vendor docs and fixtures), including id.",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "description": "BambooHR employee id. Used as the Baton resource id (pkg/connector/user.go:112)." },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "supervisor": { "type": "string", "description": "Supervisor's display name." },
+          "supervisorEId": { "type": "string", "description": "Supervisor's employee id." },
+          "supervisorId": { "type": "string" },
+          "supervisorEmail": { "type": "string" },
+          "workEmail": { "type": "string", "description": "JSON tag `workEmail`; mapped to the Baton user's email trait (pkg/connector/user.go:109)." },
+          "status": {
+            "type": "string",
+            "description": "Mapped to Baton resource status in pkg/connector/user.go:98-105: \"Active\" -> ENABLED, \"Inactive\" -> DISABLED, anything else -> UNSPECIFIED. Vendor docs do not publish an exhaustive enum of possible status strings, so only these two values are proven; the connector's own fallback branch is evidence further values exist.",
+            "example": "Active"
+          },
+          "division": { "type": "string" },
+          "department": { "type": "string" },
+          "employmentHistoryStatus": { "type": "string" },
+          "terminationDate": { "type": "string", "description": "Observed as an ISO date string (e.g. \"2024-12-31\") in the `date`-typed field fixture; the Go field is a plain string with no date-format validation in the connector." },
+          "jobTitle": { "type": "string" },
+          "hireDate": { "type": "string" },
+          "originalHireDate": { "type": "string" },
+          "employeeNumber": { "type": "string" },
+          "location": { "type": "string" },
+          "preferredName": { "type": "string" },
+          "displayName": { "type": "string" },
+          "reportsTo": { "type": "string" }
+        },
+        "additionalProperties": {
+          "type": "string",
+          "description": "Any operator-configured custom field (from the `custom-fields` config option) that is not one of the standard properties above. Captured generically by `User.UnmarshalJSON` (pkg/connector/client/models.go:69-96) into `CustomFields map[string]string` and re-emitted on the Baton user profile under a `custom_` prefix (pkg/connector/user.go:143-149). The connector string-ifies whatever JSON value comes back (string as-is, any other JSON type via its raw encoding), so the true upstream type per custom field is unproven and may not always be a JSON string."
+        }
+      },
+      "ErrorBody": {
+        "type": "string",
+        "description": "Raw response body text. The connector never parses non-2xx bodies as JSON -- it reads them as raw bytes (pkg/connector/client/request.go:96-105) and surfaces them verbatim in the error message. Proven as plain text for 406 by test fixture; the shape for 401/403/503/other statuses is not proven by a fixture or vendor example and may in practice be a JSON error object for some of them."
+      }
+    }
+  }
+}
