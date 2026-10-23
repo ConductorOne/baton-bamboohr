@@ -53,6 +53,8 @@ Re-verify this finding if either of the following changes:
 1. The per-tenant Datasets catalog (`GET /api/v1_2/datasets`) starts exposing a users/access dataset.
 2. Any future endpoint adopts the `access_level` OAuth scope.
 
+This finding has been checked against BambooHR's official vendor documentation only and is still waiting on a live tenant check; live confirmation will be re-run once a tenant credential with a Company Domain is available.
+
 # Contributing, Support and Issues
 
 We started Baton because we were tired of taking screenshots and manually
