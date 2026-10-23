@@ -18,7 +18,7 @@ If you're setting up BambooHR with C1 for the first time, you're in the right pl
 | :--- | :--- | :--- |
 | Accounts | <Icon icon="square-check" iconType="solid"  color="#c937ae"/> |  |
 
-BambooHR's public API does not expose roles or access levels that C1 can sync as entitlements: there is no endpoint that lists roles or access levels, no edge linking a user to a role or access level, and no reportable per-employee access-level field in the [BambooHR field-name catalog](https://documentation.bamboohr.com/docs/list-of-field-names). The [API reference](https://documentation.bamboohr.com/docs/api-details) declares an OAuth `access_level` scope, but no documented endpoint uses it. This connector therefore syncs user accounts only; live confirmation against a BambooHR tenant is pending (see the connector's PR description for the current credential-boundary status).
+BambooHR's public API does not expose roles or access levels that C1 can sync as entitlements: there is no endpoint that lists roles or access levels, no edge linking a user to a role or access level, and no reportable per-employee access-level field in the [BambooHR field-name catalog](https://documentation.bamboohr.com/docs/list-of-field-names). The [API reference](https://documentation.bamboohr.com/docs/api-details) declares an OAuth `access_level` scope, but no documented endpoint uses it. This connector therefore syncs user accounts only; live confirmation against a BambooHR tenant is pending (see the connector's README, "Not synced: roles / access levels").
 
 ## Gather BambooHR credentials
 
