@@ -39,6 +39,22 @@ baton resources
 - Users
   - Users supervisors
 
+### Not synced: roles / access levels
+
+BambooHR's public API does not expose roles or access levels that can be synced as entitlements, checked on 2026-10-23:
+
+- There is no endpoint that lists roles or access levels (the official API reference index: [API reference](https://documentation.bamboohr.com/docs/api-details)).
+- There is no edge linking a user to a role or access level (same index; the only user endpoint, `GET /api/v1/meta/users`, carries no access-level or role attribute).
+- There is no reportable per-employee access-level field (the [BambooHR field-name catalog](https://documentation.bamboohr.com/docs/list-of-field-names) has none).
+- An OAuth `access_level` scope is declared in the API reference, but no documented endpoint consumes it.
+
+Re-verify this finding if either of the following changes:
+
+1. The per-tenant Datasets catalog (`GET /api/v1_2/datasets`) starts exposing a users/access dataset.
+2. Any future endpoint adopts the `access_level` OAuth scope.
+
+This finding has been checked against BambooHR's official vendor documentation only and is still waiting on a live tenant check; live confirmation will be re-run once a tenant credential with a Company Domain is available.
+
 # Contributing, Support and Issues
 
 We started Baton because we were tired of taking screenshots and manually

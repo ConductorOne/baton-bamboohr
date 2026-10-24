@@ -61,6 +61,10 @@ func (c *BambooHr) Asset(ctx context.Context, asset *v2.AssetRef) (string, io.Re
 	return "", nil, nil
 }
 
+// ResourceSyncers returns the resource types this connector syncs. BambooHR's
+// public API has no roles/access-level listing endpoint, no user→role membership
+// edge, and no reportable per-employee access-level field (checked 2026-10-23), so
+// only user accounts are synced. See README.md "Not synced: roles / access levels".
 func (c *BambooHr) ResourceSyncers(ctx context.Context) []connectorbuilder.ResourceSyncer {
 	return []connectorbuilder.ResourceSyncer{
 		userBuilder(c.client),
