@@ -1,4 +1,4 @@
-![Baton Logo](./docs/images/baton-logo.png)
+![Baton Logo](./baton-logo.png)
 
 # `baton-bamboohr` [![Go Reference](https://pkg.go.dev/badge/github.com/conductorone/baton-bamboohr.svg)](https://pkg.go.dev/github.com/conductorone/baton-bamboohr) ![ci](https://github.com/conductorone/baton-bamboohr/actions/workflows/ci.yaml/badge.svg)
 
